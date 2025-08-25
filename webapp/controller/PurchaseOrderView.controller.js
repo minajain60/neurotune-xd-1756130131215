@@ -29,23 +29,53 @@ sap.ui.define([
     onInit: function () {
       // Load mock data for Purchase Order Header
       var oPurchaseOrderModel = new JSONModel();
-      oPurchaseOrderModel.loadData("model/mockData/PurchaseOrderData.json");
-      this.getView().setModel(oPurchaseOrderModel, "PurchaseOrderData");
+      oPurchaseOrderModel.loadData("model/mockData/PurchaseOrderData.json")
+        .then(function () {
+          this.getView().setModel(oPurchaseOrderModel, "PurchaseOrderData");
+        }.bind(this))
+        .catch(function (oError) {
+          console.error("Error loading PurchaseOrderData mock data:", oError);
+        });
 
       // Load mock data for Delivery Invoice
       var oDeliveryInvoiceModel = new JSONModel();
-      oDeliveryInvoiceModel.loadData("model/mockData/DeliveryInvoiceData.json");
-      this.getView().setModel(oDeliveryInvoiceModel, "DeliveryInvoiceData");
+      oDeliveryInvoiceModel.loadData("model/mockData/DeliveryInvoiceData.json")
+        .then(function () {
+          this.getView().setModel(oDeliveryInvoiceModel, "DeliveryInvoiceData");
+        }.bind(this))
+        .catch(function (oError) {
+          console.error("Error loading DeliveryInvoiceData mock data:", oError);
+        });
 
       // Load mock data for Purchase Order Items
       var oPurchaseOrderItemsModel = new JSONModel();
-      oPurchaseOrderItemsModel.loadData("model/mockData/PurchaseOrderItems.json");
-      this.getView().setModel(oPurchaseOrderItemsModel, "PurchaseOrderItems");
+      oPurchaseOrderItemsModel.loadData("model/mockData/PurchaseOrderItems.json")
+        .then(function () {
+          this.getView().setModel(oPurchaseOrderItemsModel, "PurchaseOrderItems");
+        }.bind(this))
+        .catch(function (oError) {
+          console.error("Error loading PurchaseOrderItems mock data:", oError);
+        });
 
       // Load mock data for Selected Item Details
       var oSelectedItemDetailsModel = new JSONModel();
-      oSelectedItemDetailsModel.loadData("model/mockData/SelectedItemDetails.json");
-      this.getView().setModel(oSelectedItemDetailsModel, "SelectedItemDetails");
+      oSelectedItemDetailsModel.loadData("model/mockData/SelectedItemDetails.json")
+        .then(function () {
+          this.getView().setModel(oSelectedItemDetailsModel, "SelectedItemDetails");
+        }.bind(this))
+        .catch(function (oError) {
+          console.error("Error loading SelectedItemDetails mock data:", oError);
+        });
+
+      // Load mock data for Item Selection
+      var oItemSelectionModel = new JSONModel();
+      oItemSelectionModel.loadData("model/mockData/ItemSelection.json")
+        .then(function () {
+          this.getView().setModel(oItemSelectionModel, "ItemSelection");
+        }.bind(this))
+        .catch(function (oError) {
+          console.error("Error loading ItemSelection mock data:", oError);
+        });
 
       // Initialize message model for MessageArea/MessagePopover
       var oMessageModel = new JSONModel({
@@ -270,7 +300,7 @@ sap.ui.define([
             })
           }
         });
-        this.getView().byId("messagePopoverBtn").addDependent(this._oMessagePopover);
+        this.getView().byId("messagesButton").addDependent(this._oMessagePopover); // ensure message popover is properly attached to the view
       }
       this._oMessagePopover.toggle(oEvent.getSource());
     },
