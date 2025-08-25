@@ -6,255 +6,330 @@ sap.ui.define([
   "sap/m/MessagePopover",
   "sap/m/MessageItem",
   "sap/ui/core/library",
-  "sap/ui/core/UIComponent"
-], function (Controller, JSONModel, MessageToast, MessageBox, MessagePopover, MessageItem, coreLibrary, UIComponent) {
+  "sap/ui/core/UIComponent",
+  "sap/ui/core/util/Export",
+  "sap/ui/core/util/ExportTypeCSV",
+  "sap/ui/model/Filter",
+  "sap/ui/model/FilterOperator",
+  "sap/ui/model/Sorter"
+], function (Controller, JSONModel, MessageToast, MessageBox, MessagePopover, MessageItem, coreLibrary, UIComponent, Export, ExportTypeCSV, Filter, FilterOperator, Sorter) {
   "use strict";
-  
+
   // Shortcut for sap.ui.core.MessageType
   var MessageType = coreLibrary.MessageType;
 
+  /**
+   * @class converted.purchaseorderview.controller.PurchaseOrderView
+   * Controller for the Purchase Order View.
+   */
   return Controller.extend("converted.purchaseorderview.controller.PurchaseOrderView", {
+    /**
+     * Called when the view is initialized.
+     */
     onInit: function () {
-      // Initialize models
-      var oModel = new JSONModel();
-      this.getView().setModel(oModel);
-      
+      // Load mock data for Purchase Order Header
+      var oPurchaseOrderModel = new JSONModel();
+      oPurchaseOrderModel.loadData("model/mockData/PurchaseOrderData.json");
+      this.getView().setModel(oPurchaseOrderModel, "PurchaseOrderData");
+
+      // Load mock data for Delivery Invoice
+      var oDeliveryInvoiceModel = new JSONModel();
+      oDeliveryInvoiceModel.loadData("model/mockData/DeliveryInvoiceData.json");
+      this.getView().setModel(oDeliveryInvoiceModel, "DeliveryInvoiceData");
+
+      // Load mock data for Purchase Order Items
+      var oPurchaseOrderItemsModel = new JSONModel();
+      oPurchaseOrderItemsModel.loadData("model/mockData/PurchaseOrderItems.json");
+      this.getView().setModel(oPurchaseOrderItemsModel, "PurchaseOrderItems");
+
+      // Load mock data for Selected Item Details
+      var oSelectedItemDetailsModel = new JSONModel();
+      oSelectedItemDetailsModel.loadData("model/mockData/SelectedItemDetails.json");
+      this.getView().setModel(oSelectedItemDetailsModel, "SelectedItemDetails");
+
       // Initialize message model for MessageArea/MessagePopover
       var oMessageModel = new JSONModel({
-        messages: [
-          {
-            type: MessageType.Success,
-            title: "System Information",
-            description: "Application converted successfully, Use AI optimize for better result",
-            subtitle: "Conversion complete",
-            counter: 1
-          }
-        ]
+        messages: [{
+          type: MessageType.Success,
+          title: "System Information",
+          description: "Application converted successfully, Use AI optimize for better result",
+          subtitle: "Conversion complete",
+          counter: 1
+        }]
       });
       this.getView().setModel(oMessageModel, "messages");
-      
-      // Converted from WebDynpro: 2025-08-25T13:55:35.822Z
     },
-    
-    // Event handlers
-    onBeforeRendering: function() {
-      // Prepare data before rendering
-    },
-    
-    onAfterRendering: function() {
-      // Adjust UI after rendering
-    },
-    
-    // Enhanced event handlers for special WebDynpro elements
-    
+
     /**
-     * Handle value help request (for ValueHelp / F4 elements)
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Event handler for saving the document.
      */
-    handleValueHelp: function(oEvent) {
-      var oSource = oEvent.getSource();
-      
-      // Create value help dialog if it doesn't exist
-      if (!this._valueHelpDialog) {
-        this._valueHelpDialog = new SelectDialog({
-          title: "Select Value",
-          confirm: function(oEvent) {
-            var oSelectedItem = oEvent.getParameter("selectedItem");
-            if (oSelectedItem) {
-              oSource.setValue(oSelectedItem.getTitle());
-            }
+    onActionSave: function () {
+      MessageToast.show("Save action triggered");
+    },
+
+    /**
+     * Event handler for print preview.
+     */
+    onActionPrintPreview: function () {
+      MessageToast.show("Print Preview action triggered");
+    },
+
+    /**
+     * Event handler for displaying messages.
+     */
+    onActionMessages: function () {
+      this.handleMessagePopoverPress(); // Use the existing message popover
+    },
+
+    /**
+     * Event handler for personal settings.
+     */
+    onActionPersonalSetting: function () {
+      MessageToast.show("Personal Setting action triggered");
+    },
+
+    /**
+     * Event handler for saving as template.
+     */
+    onActionSaveAsTemplate: function () {
+      MessageToast.show("Save As Template action triggered");
+    },
+
+    /**
+     * Event handler for loading from template.
+     */
+    onActionLoadFromTemplate: function () {
+      MessageToast.show("Load From Template action triggered");
+    },
+
+    /**
+     * Event handler for selecting a tab in the main tab strip.
+     * @param {sap.ui.base.Event} oEvent The selection event.
+     */
+    onSelectMainTab: function (oEvent) {
+      var sTabKey = oEvent.getParameter("key");
+      MessageToast.show("Selected tab: " + sTabKey);
+    },
+
+    /**
+     * Event handler for default values button.
+     */
+    onActionDefaultValues: function () {
+      MessageToast.show("Default Values action triggered");
+    },
+
+    /**
+     * Event handler for additional planning button.
+     */
+    onActionAddlPlanning: function () {
+      MessageToast.show("Additional Planning action triggered");
+    },
+
+    /**
+     * Event handler for selecting an item in the order item dropdown.
+     * @param {sap.ui.base.Event} oEvent The selection event.
+     */
+    onActionSelectOrderItem: function (oEvent) {
+      var sKey = oEvent.getParameter("selectedKey");
+      MessageToast.show("Selected order item: " + sKey);
+    },
+
+    /**
+     * Event handler for selecting the previous item.
+     */
+    onActionSelectPrevItem: function () {
+      MessageToast.show("Select Previous Item action triggered");
+    },
+
+    /**
+     * Event handler for selecting the next item.
+     */
+    onActionSelectNextItem: function () {
+      MessageToast.show("Select Next Item action triggered");
+    },
+
+    /**
+     * Event handler for selecting a tab in the item detail tab strip.
+     * @param {sap.ui.base.Event} oEvent The selection event.
+     */
+    onSelectSubTab: function (oEvent) {
+      var sTabKey = oEvent.getParameter("key");
+      MessageToast.show("Selected sub tab: " + sTabKey);
+    },
+
+    /**
+     * Event handler for searching control code.
+     */
+    onActionSearchControlCode: function () {
+      MessageToast.show("Search Control Code action triggered");
+    },
+
+    /**
+     * Opens a confirmation dialog.
+     */
+    openConfirmDialog: function () {
+      MessageBox.confirm("Are you sure?", {
+        title: "Confirmation",
+        onClose: function (oAction) {
+          if (oAction === MessageBox.Action.OK) {
+            MessageToast.show("Confirmed!");
+          } else {
+            MessageToast.show("Cancelled!");
           }
-        });
-        
-        // Sample items - would be filled with actual data in a real app
-        var oDialogModel = new JSONModel({
-          items: [
-            { title: "Item 1", description: "Description 1" },
-            { title: "Item 2", description: "Description 2" },
-            { title: "Item 3", description: "Description 3" }
-          ]
-        });
-        
-        this._valueHelpDialog.setModel(oDialogModel);
-        this._valueHelpDialog.bindAggregation("items", {
-          path: "/items",
-          template: new StandardListItem({
-            title: "{title}",
-            description: "{description}"
-          })
-        });
+        }
+      });
+    },
+
+    /**
+     * Event handler for exporting the table data to CSV.
+     */
+    onExportToCSV: function () {
+      var oTable = this.byId("itemDetailsTable");
+      var oBinding = oTable.getBinding("items");
+      var aData = oBinding.getModel().getProperty(oBinding.getPath());
+
+      if (!aData || aData.length === 0) {
+        MessageToast.show("No data to export.");
+        return;
       }
-      
-      // Open the dialog
-      this._valueHelpDialog.open();
+
+      var aHeaders = Object.keys(aData[0]);
+      var sCsvContent = aHeaders.join(",") + "\n";
+
+      aData.forEach(function (row) {
+        var aValues = aHeaders.map(function (header) {
+          return "\"" + (row[header] || "").toString().replace(/"/g, "\"\"") + "\"";
+        });
+        sCsvContent += aValues.join(",") + "\n";
+      });
+
+      var oBlob = new Blob([sCsvContent], {
+        type: "text/csv"
+      });
+      var sUrl = URL.createObjectURL(oBlob);
+      var oLink = document.createElement("a");
+      oLink.href = sUrl;
+      oLink.download = "purchase_order_items.csv";
+      document.body.appendChild(oLink); // Required for Firefox
+      oLink.click();
+      document.body.removeChild(oLink);
+      URL.revokeObjectURL(sUrl);
     },
-    
+
     /**
-     * Handle file download requests (for FileDownload elements)
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Event handler for live search in the item details table.
+     * @param {sap.ui.base.Event} oEvent The search event.
      */
-    onFileDownload: function(oEvent) {
-      // In a real application, this would be connected to a backend service
-      // For now, we'll show a message
-      MessageToast.show("File download initiated");
-      
-      // Sample approach to download a file:
-      // var sUrl = "/api/downloadFile?id=123";
-      // var link = document.createElement("a");
-      // link.href = sUrl;
-      // link.download = "filename.pdf";
-      // link.click();
+    onSearch: function (oEvent) {
+      var sQuery = oEvent.getParameter("newValue") || oEvent.getParameter("query");
+      var oTable = this.byId("itemDetailsTable");
+      var oBinding = oTable.getBinding("items");
+      var aFilters = [];
+
+      if (sQuery && sQuery.length > 0) {
+        var aSearchFilters = [];
+        aSearchFilters.push(new Filter("MaterialNumber", FilterOperator.Contains, sQuery));
+        aSearchFilters.push(new Filter("ShortText", FilterOperator.Contains, sQuery));
+        aFilters.push(new Filter({
+          filters: aSearchFilters,
+          and: false
+        }));
+      }
+      oBinding.filter(aFilters);
     },
-    
+
     /**
-     * Open message popover (for MessageArea elements)
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Event handler for filtering the item details table.
      */
-    handleMessagePopoverPress: function(oEvent) {
-      if (!this._messagePopover) {
-        this._messagePopover = new MessagePopover({
+    onFilterPress: function () {
+      MessageBox.information("Filter functionality not yet implemented.");
+    },
+
+    /**
+     * Event handler for sorting the item details table.
+     */
+    onSortPress: function () {
+      MessageBox.information("Sort functionality not yet implemented.");
+    },
+
+    /**
+     * Handles the press event of the message popover button.
+     * @param {sap.ui.base.Event} oEvent The button press event.
+     */
+    handleMessagePopoverPress: function (oEvent) {
+      if (!this._oMessagePopover) {
+        this._oMessagePopover = new MessagePopover({
           items: {
-            path: "messages>/messages",
+            path: 'messages>/messages',
             template: new MessageItem({
-              type: "{messages>type}",
-              title: "{messages>title}",
-              description: "{messages>description}",
-              subtitle: "{messages>subtitle}",
-              counter: "{messages>counter}"
+              type: '{messages>type}',
+              title: '{messages>title}',
+              description: '{messages>description}',
+              subtitle: '{messages>subtitle}',
+              counter: '{messages>counter}'
             })
           }
         });
-        
-        this.getView().byId("messagePopoverBtn").addDependent(this._messagePopover);
+        this.getView().byId("messagePopoverBtn").addDependent(this._oMessagePopover);
       }
-      
-      this._messagePopover.toggle(oEvent.getSource());
+      this._oMessagePopover.toggle(oEvent.getSource());
     },
-    
+
     /**
-     * Handle navigation link press events
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Called when the Add button in the table toolbar is pressed.
      */
-    onNavigationLinkPress: function(oEvent) {
-      var oSource = oEvent.getSource();
-      var sHref = oSource.getHref();
-      
-      if (sHref) {
-        // If href is set, let the default behavior handle it
-        return;
-      }
-      
-      // Otherwise, handle the navigation programmatically
-      var sNavTarget = oSource.data("navTarget");
-      if (sNavTarget) {
-        MessageToast.show("Navigating to: " + sNavTarget);
-        // In a real application, this would navigate to the appropriate view or application
-        // using the router
-      }
+    onTableBtnAdd: function () {
+      MessageToast.show("Add Item button pressed.");
     },
-    
+
     /**
-     * Handle office control rendering
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Called when the Delete button in the table toolbar is pressed.
      */
-    onOfficeControlRendered: function(oEvent) {
-      // This would normally integrate with MS Office API or similar
-      // In a converted application, this would be replaced by a more appropriate solution
-      console.log("Office control container rendered");
-      
-      var oSource = oEvent.getSource();
-      var sDomRef = oSource.getDomRef();
-      if (sDomRef) {
-        sDomRef.innerHTML = '<div class="sapUiMediumMargin">' +
-          '<div class="sapUiMediumMarginBottom">' +
-          '<span class="sapUiIcon sapUiIconMirrorInRTL" style="font-family:SAP-icons;color:#0854a0;font-size:2.5rem">&#xe0ef;</span>' +
-          '</div>' +
-          '<div class="sapMText">' +
-          '<p>Office document integration would be configured here.</p>' +
-          '<p>In SAPUI5, this typically uses OData services with MS Graph API integration.</p>' +
-          '</div>' +
-          '</div>';
-      }
+    onTableBtnDelete: function () {
+      MessageToast.show("Delete Item button pressed.");
     },
-    
+
     /**
-     * Open dialog
-     * This is a generic handler for WebDynpro dialog elements
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Called when the Copy button in the table toolbar is pressed.
      */
-    openDialog: function(oEvent) {
-      // Get the dialog ID from the source control
-      var oSource = oEvent.getSource();
-      var sDialogId = oSource.data("dialogId") || "confirmDialog";
-      
-      // Find the dialog in the view
-      var oDialog = this.getView().byId(sDialogId);
-      if (oDialog) {
-        oDialog.open();
-      } else {
-        MessageToast.show("Dialog with ID '" + sDialogId + "' not found");
-      }
+    onTableBtnCopy: function () {
+      MessageToast.show("Copy Item button pressed.");
     },
-    
+
     /**
-     * Close dialog
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Called when the Lock button in the table toolbar is pressed.
      */
-    closeDialog: function(oEvent) {
-      var oDialog = oEvent.getSource().getParent();
-      oDialog.close();
+    onTableBtnLock: function () {
+      MessageToast.show("Lock Item button pressed.");
     },
-    
+
     /**
-     * Handle dialog confirm button press
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Called when the Unlock button in the table toolbar is pressed.
      */
-    onDialogConfirm: function(oEvent) {
-      // Handle dialog confirmation logic
-      MessageToast.show("Dialog confirmed");
-      this.closeDialog(oEvent);
+    onTableBtnUnlock: function () {
+      MessageToast.show("Unlock Item button pressed.");
     },
-    
+
     /**
-     * Handle dialog cancel button press
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Called when the Settings button in the table toolbar is pressed.
      */
-    onDialogCancel: function(oEvent) {
-      // Handle dialog cancellation
-      this.closeDialog(oEvent);
+    onTableBtnSettings: function () {
+      MessageToast.show("Table Settings button pressed.");
     },
-    
+
     /**
-     * Navigate to SecondView
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Called when the Filter button in the table toolbar is pressed.
      */
-    onNextPress: function(oEvent) {
-      // Get the router instance
-      var oRouter = UIComponent.getRouterFor(this);
-      
-      // Navigate to the 'second' route
-      oRouter.navTo("second");
+    onTableBtnFilter: function () {
+      MessageToast.show("Filter Table button pressed.");
     },
-    
+
     /**
-     * Navigate back to main view
-     * @param {sap.ui.base.Event} oEvent The event object
+     * Called when the Export button in the table toolbar is pressed.
      */
-    onBackPress: function(oEvent) {
-      // Get the router instance
-      var oRouter = UIComponent.getRouterFor(this);
-      
-      // Navigate to the 'main' route
-      oRouter.navTo("main");
-    },
-    
-    /**
-     * Navigate to a specific route
-     * @param {string} sRoute The route name to navigate to
-     */
-    navTo: function(sRoute) {
-      var oRouter = UIComponent.getRouterFor(this);
-      oRouter.navTo(sRoute);
+    onTableBtnExport: function () {
+      this.onExportToCSV();
     }
+
   });
 });

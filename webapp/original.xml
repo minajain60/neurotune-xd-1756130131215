@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebDynpro xmlns="http://www.sap.com/wd/webdynpro">
+  <View name="PurchaseOrderView">
+    <Title>Document Overview On</Title>
+    <Layout type="MatrixLayout" id="MainViewLayout">
+      <!-- Top header toolbar -->
+      <MatrixData rowSpan="1" colSpan="2"/>
+      <Toolbar id="TopHeaderToolbar">
+        <Item>
+          <TextView id="DocumentOverviewText" text="Document Overview On" design="Emphasized"/>
+        </Item>
+        <Item>
+          <ToolbarSeparator/>
+        </Item>
+        <Item>
+          <Button id="SaveButton" text="Save" icon="~Icon/Save" tooltip="Save Document" onAction="onActionSave"/>
+          <Button id="PrintButton" text="Print Preview" icon="~Icon/PrintPreview" tooltip="Print Preview" onAction="onActionPrintPreview"/>
+          <Button id="MessagesButton" text="Messages" icon="~Icon/Message" tooltip="Show Messages" onAction="onActionMessages"/>
+          <Button id="PersonalSettingButton" text="Personal Setting" icon="~Icon/PersonalSetting" tooltip="Personal Settings" onAction="onActionPersonalSetting"/>
+          <Button id="SaveAsTemplateButton" text="Save As Template" icon="~Icon/SaveAsTemplate" tooltip="Save As Template" onAction="onActionSaveAsTemplate"/>
+          <Button id="LoadFromTemplateButton" text="Load from Template" icon="~Icon/LoadFromTemplate" tooltip="Load From Template" onAction="onActionLoadFromTemplate"/>
+        </Item>
+      </Toolbar>
+
+      <!-- Main PO Header Details (below top toolbar, above main tabs) -->
+      <MatrixData rowSpan="1" colSpan="2"/>
+      <Group id="POHeaderGroup" design="Transparent">
+        <Layout type="MatrixLayout" id="POHeaderGroupLayout">
+          <MatrixHeadData rowSpan="1" colSpan="1"/>
+          <MatrixCell id="POHeaderCell1">
+            <TextView id="MainPOLabel" text="Main Repair/RC/RT PO"/>
+          </MatrixCell>
+          <MatrixCell id="POHeaderCell2">
+            <InputField id="PONumberInputField" value="510009405" enabled="false" width="100px"/>
+          </MatrixCell>
+          <MatrixCell id="POHeaderCell3">
+            <TextView id="VendorLabel" text="Vendor"/>
+          </MatrixCell>
+          <MatrixCell id="POHeaderCell4">
+            <InputField id="VendorInputField" value="{/PurchaseOrderData/VendorName}" width="150px"/>
+          </MatrixCell>
+          <MatrixCell id="POHeaderCell5">
+            <TextView id="DocDateLabel" text="Doc. date"/>
+          </MatrixCell>
+          <MatrixCell id="POHeaderCell6">
+            <InputField id="DocDateInputField" value="11.02.2016" type="Date" enabled="false" width="90px"/>
+            <Image id="DocDateWarningIcon" src="~Icon/Warning" tooltip="Warning regarding document date"/>
+          </MatrixCell>
+        </Layout>
+      </Group>
+
+      <!-- Main TabStrip for PO Header Details -->
+      <MatrixData rowSpan="1" colSpan="2"/>
+      <TabStrip id="MainPOTabStrip" selectedTabKey="DELIVERY_INVOICE" onSelect="onSelectMainTab">
+        <Tab id="DeliveryInvoiceTab" text="Delivery/Invoice" key="DELIVERY_INVOICE">
+          <FormContainer id="DeliveryInvoiceForm" layout="MatrixLayout">
+            <FormElement id="PaymentTermsElement">
+              <Label text="Payment Terms" for="PaymentTermsField"/>
+              <InputField id="PaymentTermsField" value="0001"/>
+            </FormElement>
+            <FormElement id="PaymentInDaysElement">
+              <Label text="Payment in" for="PaymentInDaysField"/>
+              <InputField id="PaymentInDaysField" value="{/DeliveryInvoiceData/PaymentInDays1}" width="50px"/>
+              <TextView text="days"/>
+            </FormElement>
+            <FormElement id="PaymentInPercentElement">
+              <Label text="Payment in" for="PaymentInPercentField"/>
+              <InputField id="PaymentInPercentField" value="{/DeliveryInvoiceData/PaymentInDays2}" width="50px"/>
+              <InputField id="PaymentInPercentValueField" value="{/DeliveryInvoiceData/PaymentInPercent}" width="50px"/>
+              <TextView text="%"/>
+            </FormElement>
+            <FormElement id="PaymentInDaysNetElement">
+              <Label text="Payment in" for="PaymentInDaysNetField"/>
+              <InputField id="PaymentInDaysNetField" value="{/DeliveryInvoiceData/PaymentInDaysNet}" width="50px"/>
+              <TextView text="days net"/>
+            </FormElement>
+            <FormElement id="IncotermsElement">
+              <Label text="Incoterms" for="IncotermsField1"/>
+              <InputField id="IncotermsField1" value="FOB" width="55px"/>
+              <InputField id="IncotermsField2" value="From Plant" width="150px"/>
+            </FormElement>
+            <FormElement id="CurrencyElement">
+              <Label text="Currency" for="CurrencyField"/>
+              <InputField id="CurrencyField" value="INR" width="50px" enabled="false"/>
+            </FormElement>
+            <FormElement id="ExchangeRateElement">
+              <Label text="Exchange Rate" for="ExchangeRateField"/>
+              <InputField id="ExchangeRateField" value="1.00000" type="Decimal" width="70px"/>
+              <CheckBox id="ExchangeRateFixedCheckbox" text="Exch.Rate Fixed" checked="{/DeliveryInvoiceData/ExchangeRateFixed}"/>
+            </FormElement>
+            <FormElement id="GRMessageElement">
+              <Label text="" />
+              <CheckBox id="GRMessageCheckbox" text="GR Message" checked="{/DeliveryInvoiceData/GRMessage}"/>
+            </FormElement>
+          </FormContainer>
+        </Tab>
+        <Tab id="ConditionsTab" text="Conditions" key="CONDITIONS"/>
+        <Tab id="TextsTab" text="Texts" key="TEXTS"/>
+        <Tab id="AddressTab" text="Address" key="ADDRESS"/>
+        <Tab id="CommunicationTab" text="Communication" key="COMMUNICATION"/>
+        <Tab id="PartnersTab" text="Partners" key="PARTNERS"/>
+        <Tab id="AdditionalDataTab" text="Additional Data" key="ADDITIONAL_DATA"/>
+        <Tab id="OrgDataTab" text="Org. Data" key="ORG_DATA"/>
+        <Tab id="StatusTab" text="Status" key="STATUS"/>
+        <Tab id="ReleaseStrategyTab" text="Release strategy" key="RELEASE_STRATEGY"/>
+      </TabStrip>
+
+      <!-- Item Details Table -->
+      <MatrixData rowSpan="1" colSpan="2"/>
+      <Table id="ItemDetailsTable" dataSource="{/PurchaseOrderItems}" width="100%" height="200px">
+        <Columns>
+          <Column id="Col_S" headerText="S...">
+            <Template>
+              <Image id="ItemStatusIconTmpl" src="{currentItem.ItemStatusIcon}" tooltip="{currentItem.ItemStatusTooltip}"/>
+            </Template>
+          </Column>
+          <Column id="Col_Itm" headerText="Itm">
+            <Template>
+              <InputField id="Item_ItmTmpl" value="{currentItem.ItemNumber}" enabled="false"/>
+            </Template>
+          </Column>
+          <Column id="Col_A" headerText="A">
+            <Template>
+              <InputField id="Item_ATmpl" value="{currentItem.FieldA}"/>
+            </Template>
+          </Column>
+          <Column id="Col_I" headerText="I">
+            <Template>
+              <InputField id="Item_ITmpl" value="{currentItem.FieldI}"/>
+            </Template>
+          </Column>
+          <Column id="Col_Material" headerText="Material">
+            <Template>
+              <InputField id="Item_MaterialTmpl" value="{currentItem.MaterialNumber}"/>
+            </Template>
+          </Column>
+          <Column id="Col_ShortText" headerText="Short Text" width="150px">
+            <Template>
+              <InputField id="Item_ShortTextTmpl" value="{currentItem.ShortText}"/>
+            </Template>
+          </Column>
+          <Column id="Col_POQuantity" headerText="PO Quantity">
+            <Template>
+              <InputField id="Item_POQuantityTmpl" value="{currentItem.POQuantity}" type="Decimal"/>
+            </Template>
+          </Column>
+          <Column id="Col_OrderUnit" headerText="O...">
+            <Template>
+              <InputField id="Item_OrderUnitTmpl" value="{currentItem.OrderUnit}"/>
+            </Template>
+          </Column>
+          <Column id="Col_C" headerText="C">
+            <Template>
+              <InputField id="Item_CTmpl" value="{currentItem.ConfirmationStatus}"/>
+            </Template>
+          </Column>
+          <Column id="Col_DeliveryDate" headerText="Deliv. Date">
+            <Template>
+              <InputField id="Item_DeliveryDateTmpl" value="{currentItem.DeliveryDate}" type="Date"/>
+            </Template>
+          </Column>
+          <Column id="Col_NetPrice" headerText="Net Price">
+            <Template>
+              <InputField id="Item_NetPriceTmpl" value="{currentItem.NetPrice}" type="Decimal"/>
+            </Template>
+          </Column>
+          <Column id="Col_Currency" headerText="Curr...">
+            <Template>
+              <InputField id="Item_CurrencyTmpl" value="{currentItem.Currency}" enabled="false"/>
+            </Template>
+          </Column>
+          <Column id="Col_Per" headerText="Per">
+            <Template>
+              <InputField id="Item_PerTmpl" value="{currentItem.PerUnit}" type="Integer"/>
+            </Template>
+          </Column>
+          <Column id="Col_OrderUnit2" headerText="O...">
+            <Template>
+              <InputField id="Item_OrderUnit2Tmpl" value="{currentItem.OrderUnit2}" enabled="false"/>
+            </Template>
+          </Column>
+          <Column id="Col_MaterialGroup" headerText="Matl Group">
+            <Template>
+              <InputField id="Item_MaterialGroupTmpl" value="{currentItem.MaterialGroup}"/>
+            </Template>
+          </Column>
+          <Column id="Col_Plant" headerText="Plnt">
+            <Template>
+              <InputField id="Item_PlantTmpl" value="{currentItem.Plant}"/>
+            </Template>
+          </Column>
+          <Column id="Col_StorageLocation" headerText="Stor. Location">
+            <Template>
+              <InputField id="Item_StorageLocationTmpl" value="{currentItem.StorageLocation}"/>
+            </Template>
+          </Column>
+          <Column id="Col_B" headerText="B">
+            <Template>
+              <InputField id="Item_BTmpl" value="{currentItem.BlockedIndicator}"/>
+            </Template>
+          </Column>
+        </Columns>
+        <!-- The following TableRows represent the visible data in the screenshot.
+             In a real Web Dynpro application, these would be populated dynamically
+             from the 'dataSource' context node, not explicitly defined as static rows here. -->
+        <TableRows>
+          <TableRow>
+            <Image src="~Icon/Warning" tooltip="Item Status Warning"/>
+            <TextView text="1"/>
+            <TextView text="F"/>
+            <TextView text="D"/>
+            <TextView text=""/>
+            <TextView text="EXTERNAL WORK---HUB..."/>
+            <TextView text="1"/>
+            <TextView text="AU"/>
+            <TextView text="D"/>
+            <TextView text="12.02.2016"/>
+            <TextView text="1,100.00"/>
+            <TextView text="INR"/>
+            <TextView text="1"/>
+            <TextView text="AU"/>
+            <TextView text="SP-Services"/>
+            <TextView text=""/>
+            <TextView text="Main SLoc"/>
+            <TextView text=""/>
+          </TableRow>
+          <TableRow>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text="INR"/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+          </TableRow>
+          <TableRow>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text="INR"/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+          </TableRow>
+          <TableRow>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text="INR"/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+          </TableRow>
+          <TableRow>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text="INR"/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+            <TextView text=""/>
+          </TableRow>
+        </TableRows>
+      </Table>
+
+      <!-- Table Toolbar Buttons -->
+      <MatrixData rowSpan="1" colSpan="2"/>
+      <Toolbar id="ItemTableToolbar">
+        <Item>
+          <Button id="TableBtnAdd" icon="~Icon/Add" tooltip="Add Item"/>
+          <Button id="TableBtnDelete" icon="~Icon/Delete" tooltip="Delete Item"/>
+          <Button id="TableBtnCopy" icon="~Icon/Copy" tooltip="Copy Item"/>
+          <Button id="TableBtnLock" icon="~Icon/Lock" tooltip="Lock Item"/>
+          <Button id="TableBtnUnlock" icon="~Icon/Unlock" tooltip="Unlock Item"/>
+          <Button id="TableBtnSettings" icon="~Icon/TableSettings" tooltip="Table Settings"/>
+          <Button id="TableBtnFilter" icon="~Icon/Filter" tooltip="Filter Table"/>
+          <Button id="TableBtnExport" icon="~Icon/ExportToExcel" tooltip="Export Table"/>
+        </Item>
+        <Item>
+          <ToolbarSeparator/>
+        </Item>
+        <Item>
+          <Button id="DefaultValuesBtn" text="Default Values" onAction="onActionDefaultValues"/>
+          <Button id="AddlPlanningBtn" text="Addl Planning" onAction="onActionAddlPlanning"/>
+        </Item>
+      </Toolbar>
+
+      <!-- Item Selection and Item TabStrip -->
+      <MatrixData rowSpan="1" colSpan="2"/>
+      <Panel id="ItemSelectionPanel" design="Transparent" layout="FlowLayout">
+        <TextView id="ItemLabel" text="Item" design="Bold"/>
+        <DropDownByKey id="ItemDropdown" text="[ 1 ] EXTERNAL WORK--- HUB GREASING" key="1" width="250px" onSelect="onActionSelectOrderItem"/>
+        <Button id="PrevItemButton" icon="~Icon/UpArrow" onAction="onActionSelectPrevItem"/>
+        <Button id="NextItemButton" icon="~Icon/DownArrow" onAction="onActionSelectNextItem"/>
+      </Panel>
+
+      <MatrixData rowSpan="1" colSpan="2"/>
+      <TabStrip id="ItemDetailTabStrip" selectedTabKey="INDIA" onSelect="onSelectSubTab">
+        <Tab id="ServicesTab" text="Services" key="SERVICES"/>
+        <Tab id="LimitsTab" text="Limits" key="LIMITS"/>
+        <Tab id="MaterialDataTab" text="Material Data" key="MATERIAL_DATA"/>
+        <Tab id="QuantitiesWeightsTab" text="Quantities/Weights" key="QUANTITIES_WEIGHTS"/>
+        <Tab id="DeliveryScheduleTab" text="Delivery Schedule" key="DELIVERY_SCHEDULE"/>
+        <Tab id="DeliveryTab" text="Delivery" key="DELIVERY"/>
+        <Tab id="InvoiceTab" text="Invoice" key="INVOICE"/>
+        <Tab id="ConditionsItemTab" text="Conditions" key="CONDITIONS_ITEM"/>
+        <Tab id="IndiaTab" text="India" key="INDIA">
+          <FormContainer id="IndiaDetailsForm" layout="MatrixLayout">
+            <FormElement id="ControlCodeElement">
+              <Label text="Control code" for="ControlCodeField"/>
+              <InputField id="ControlCodeField" value="{/SelectedItemDetails/IndiaData/ControlCode}" width="150px"/>
+              <Button id="SearchControlCodeButton" icon="~Icon/SearchHelp" onAction="onActionSearchControlCode"/>
+            </FormElement>
+          </FormContainer>
+        </Tab>
+        <Tab id="AccountAssignmentTab" text="Account Assignment" key="ACCOUNT_ASSIGNMENT"/>
+        <Tab id="PurchaseOrderHistoryTab" text="Purchase Ord..." key="PURCHASE_ORDER_HISTORY"/>
+      </TabStrip>
+    </Layout>
+  </View>
+  <Controller name="PurchaseOrderViewController">
+    <!-- Attributes for data binding -->
+    <Property name="PurchaseOrderData" type="com.sap.wd.webdynpro.data.structure.PurchaseOrderHeader"/>
+    <Property name="DeliveryInvoiceData" type="com.sap.wd.webdynpro.data.structure.DeliveryInvoice"/>
+    <Property name="PurchaseOrderItems" type="com.sap.wd.webdynpro.data.table.PurchaseOrderItemTable"/>
+    <Property name="SelectedItem" type="com.sap.wd.webdynpro.data.structure.PurchaseOrderItemSelection"/>
+    <Property name="SelectedItemDetails" type="com.sap.wd.webdynpro.data.structure.PurchaseOrderItemDetails"/>
+
+    <!-- Event Handlers for Top Header Toolbar -->
+    <Method name="onActionSave" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to save the purchase order -->
+      </body>
+    </Method>
+    <Method name="onActionPrintPreview" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to open print preview -->
+      </body>
+    </Method>
+    <Method name="onActionMessages" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to display messages -->
+      </body>
+    </Method>
+    <Method name="onActionPersonalSetting" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to open personal settings -->
+      </body>
+    </Method>
+    <Method name="onActionSaveAsTemplate" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to save current PO as a template -->
+      </body>
+    </Method>
+    <Method name="onActionLoadFromTemplate" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to load PO data from a template -->
+      </body>
+    </Method>
+
+    <!-- Event Handlers for Main PO TabStrip -->
+    <Method name="onSelectMainTab" type="void">
+      <Parameters>
+        <Parameter name="tabKey" type="String"/>
+      </Parameters>
+      <body>
+        <!-- Logic to handle main tab selection -->
+        <!-- Update PurchaseOrderData.SelectedMainTabKey attribute -->
+      </body>
+    </Method>
+
+    <!-- Event Handlers for Item Details Table Toolbar -->
+    <Method name="onActionAddItem" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to add a new item to the table -->
+      </body>
+    </Method>
+    <Method name="onActionDeleteItem" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to delete selected item(s) from the table -->
+      </body>
+    </Method>
+    <Method name="onActionCopyItem" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to copy selected item(s) -->
+      </body>
+    </Method>
+    <Method name="onActionLockItem" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to lock selected item(s) -->
+      </body>
+    </Method>
+    <Method name="onActionUnlockItem" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to unlock selected item(s) -->
+      </body>
+    </Method>
+    <Method name="onActionSettings" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to open table settings dialog -->
+      </body>
+    </Method>
+    <Method name="onActionFilter" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to apply filter to table -->
+      </body>
+    </Method>
+    <Method name="onActionExport" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to export table data -->
+      </body>
+    </Method>
+    <Method name="onActionDefaultValues" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to apply default values to items -->
+      </body>
+    </Method>
+    <Method name="onActionAddlPlanning" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic for additional planning -->
+      </body>
+    </Method>
+
+    <!-- Event Handlers for Item Selection and Navigation -->
+    <Method name="onActionSelectOrderItem" type="void">
+      <Parameters>
+        <Parameter name="key" type="String"/>
+      </Parameters>
+      <body>
+        <!-- Logic to select a specific item from the dropdown -->
+        <!-- Update SelectedItem and SelectedItemDetails based on key -->
+      </body>
+    </Method>
+    <Method name="onActionSelectPrevItem" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to navigate to the previous item -->
+      </body>
+    </Method>
+    <Method name="onActionSelectNextItem" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to navigate to the next item -->
+      </body>
+    </Method>
+
+    <!-- Event Handlers for Item Detail TabStrip -->
+    <Method name="onSelectSubTab" type="void">
+      <Parameters>
+        <Parameter name="tabKey" type="String"/>
+      </Parameters>
+      <body>
+        <!-- Logic to handle sub tab selection -->
+        <!-- Update SelectedItemDetails.SelectedSubTabKey attribute -->
+      </body>
+    </Method>
+
+    <!-- Event Handlers for India Tab -->
+    <Method name="onActionSearchControlCode" type="void">
+      <Parameters/>
+      <body>
+        <!-- Logic to open search help for Control Code -->
+      </body>
+    </Method>
+  </Controller>
+</WebDynpro>

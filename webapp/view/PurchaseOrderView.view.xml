@@ -1,17 +1,321 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <mvc:View xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
   xmlns:layout="sap.ui.layout"
   xmlns:form="sap.ui.layout.form"
   xmlns:core="sap.ui.core"
-  xmlns:richtexteditor="sap.ui.richtexteditor"
-  xmlns:viz="sap.viz.ui5"
-  controllerName="preview.app.controller.PurchaseOrderView"
-  displayBlock="true">
-  <Page title="PurchaseOrderView" enableScrolling="true">
+  controllerName="converted.purchaseorderview.controller.PurchaseOrderView"
+  displayBlock="true"
+  height="100%"
+  xmlns:semantic="sap.f.semantic"
+          xmlns:commons="sap.ui.commons">
+  <Page title="Purchase Order View" showHeader="false">
     <content>
-      <Title id="title_5vohdq05" text="Document Overview On"/>
-      <Text id="MainViewLayout"/>
+      <layout:VerticalLayout width="100%">
+        <!-- Top Header Toolbar -->
+        <Toolbar id="topHeaderToolbar">
+          <Title text="Document Overview On" level="H2"/>
+          <ToolbarSpacer/>
+          <Button id="saveButton" text="Save" icon="sap-icon://save" tooltip="Save Document" press="onActionSave"/>
+          <Button id="printButton" text="Print Preview" icon="sap-icon://print" tooltip="Print Preview" press="onActionPrintPreview"/>
+          <Button id="messagesButton" text="Messages" icon="sap-icon://message-information" tooltip="Show Messages" press="handleMessagePopoverPress" id="messagePopoverBtn"/>
+          <Button id="personalSettingButton" text="Personal Setting" icon="sap-icon://action-settings" tooltip="Personal Settings" press="onActionPersonalSetting"/>
+          <Button id="saveAsTemplateButton" text="Save As Template" icon="sap-icon://save-as" tooltip="Save As Template" press="onActionSaveAsTemplate"/>
+          <Button id="loadFromTemplateButton" text="Load from Template" icon="sap-icon://open-command-field" tooltip="Load From Template" press="onActionLoadFromTemplate"/>
+        </Toolbar>
+
+        <!-- Main PO Header Details -->
+        <Panel id="poHeaderGroup" headerText="PO Header" class="sapUiNoContentPadding">
+          <content>
+            <layout:Grid defaultSpan="XL3 L3 M6 S12" width="auto">
+              <Label text="Main Repair/RC/RT PO"/>
+              <Input id="poNumberInputField" value="510009405" enabled="false" width="100%"/>
+
+              <Label text="Vendor"/>
+              <Input id="vendorInputField" value="{PurchaseOrderData>/VendorName}" width="100%"/>
+
+              <Label text="Doc. date"/>
+              <layout:HorizontalLayout>
+                <Input id="docDateInputField" value="{PurchaseOrderData>/DocumentDate}" type="Date" enabled="false" width="70%"/>
+                <core:Icon src="sap-icon://warning" tooltip="Warning regarding document date" size="1.0rem" class="sapUiTinyMarginTop"/>
+              </layout:HorizontalLayout>
+            </layout:Grid>
+          </content>
+        </Panel>
+
+        <!-- Main TabStrip -->
+        <IconTabBar id="mainPOTabStrip" select="onSelectMainTab" expandable="false" expanded="{device>/isNoPhone}">
+          <items>
+            <IconTabFilter id="deliveryInvoiceTab" text="Delivery/Invoice" key="DELIVERY_INVOICE">
+              <content>
+                <form:SimpleForm id="deliveryInvoiceForm" editable="true" layout="ResponsiveGridLayout" title="Delivery/Invoice Details">
+                  <form:content>
+                    <Label text="Payment Terms"/>
+                    <Input id="paymentTermsField" value="{DeliveryInvoiceData>/PaymentTerms}"/>
+
+                    <Label text="Payment in"/>
+                    <layout:HorizontalLayout>
+                      <Input id="paymentInDaysField" value="{DeliveryInvoiceData>/PaymentInDays1}" width="50px"/>
+                      <Text text="days" class="sapUiTinyMarginTop"/>
+                    </layout:HorizontalLayout>
+
+                    <Label text="Payment in"/>
+                    <layout:HorizontalLayout>
+                      <Input id="paymentInPercentField" value="{DeliveryInvoiceData>/PaymentInDays2}" width="50px"/>
+                      <Input id="paymentInPercentValueField" value="{DeliveryInvoiceData>/PaymentInPercent}" width="50px"/>
+                      <Text text="%" class="sapUiTinyMarginTop"/>
+                    </layout:HorizontalLayout>
+
+                    <Label text="Payment in"/>
+                    <layout:HorizontalLayout>
+                      <Input id="paymentInDaysNetField" value="{DeliveryInvoiceData>/PaymentInDaysNet}" width="50px"/>
+                      <Text text="days net" class="sapUiTinyMarginTop"/>
+                    </layout:HorizontalLayout>
+
+                    <Label text="Incoterms"/>
+                    <layout:HorizontalLayout>
+                      <Input id="incotermsField1" value="{DeliveryInvoiceData>/Incoterms1}" width="55px"/>
+                      <Input id="incotermsField2" value="{DeliveryInvoiceData>/Incoterms2}" width="150px"/>
+                    </layout:HorizontalLayout>
+
+                    <Label text="Currency"/>
+                    <Input id="currencyField" value="{DeliveryInvoiceData>/Currency}" width="50px" enabled="false"/>
+
+                    <Label text="Exchange Rate"/>
+                    <layout:HorizontalLayout>
+                      <Input id="exchangeRateField" value="{DeliveryInvoiceData>/ExchangeRate}" type="Number" width="70px"/>
+                      <CheckBox id="exchangeRateFixedCheckbox" text="Exch.Rate Fixed" selected="{DeliveryInvoiceData>/ExchangeRateFixed}"/>
+                    </layout:HorizontalLayout>
+
+                    <Label text=""/>
+                    <CheckBox id="grMessageCheckbox" text="GR Message" selected="{DeliveryInvoiceData>/GRMessage}"/>
+                  </form:content>
+                </form:SimpleForm>
+              </content>
+            </IconTabFilter>
+            <IconTabFilter id="conditionsTab" text="Conditions" key="CONDITIONS"/>
+            <IconTabFilter id="textsTab" text="Texts" key="TEXTS"/>
+            <IconTabFilter id="addressTab" text="Address" key="ADDRESS"/>
+            <IconTabFilter id="communicationTab" text="Communication" key="COMMUNICATION"/>
+            <IconTabFilter id="partnersTab" text="Partners" key="PARTNERS"/>
+            <IconTabFilter id="additionalDataTab" text="Additional Data" key="ADDITIONAL_DATA"/>
+            <IconTabFilter id="orgDataTab" text="Org. Data" key="ORG_DATA"/>
+            <IconTabFilter id="statusTab" text="Status" key="STATUS"/>
+            <IconTabFilter id="releaseStrategyTab" text="Release strategy" key="RELEASE_STRATEGY"/>
+          </items>
+        </IconTabBar>
+
+        <!-- Item Details Table -->
+        <Toolbar id="itemTableToolbar">
+          <Title text="Item Details" level="H3"/>
+          <ToolbarSpacer/>
+          <SearchField id="itemSearchField" width="auto" search="onSearch"/>
+        </Toolbar>
+
+        <Table id="itemDetailsTable" items="{PurchaseOrderItems>/items}" width="100%" mode="SingleSelectMaster" selectionChange="onSelectionChange">
+          <headerToolbar>
+            <Toolbar>
+              <Button id="tableBtnAdd" icon="sap-icon://add" tooltip="Add Item" press="onTableBtnAdd"/>
+              <Button id="tableBtnDelete" icon="sap-icon://delete" tooltip="Delete Item" press="onTableBtnDelete"/>
+              <Button id="tableBtnCopy" icon="sap-icon://copy" tooltip="Copy Item" press="onTableBtnCopy"/>
+              <Button id="tableBtnLock" icon="sap-icon://lock" tooltip="Lock Item" press="onTableBtnLock"/>
+              <Button id="tableBtnUnlock" icon="sap-icon://unlock" tooltip="Unlock Item" press="onTableBtnUnlock"/>
+              <Button id="tableBtnSettings" icon="sap-icon://action-settings" tooltip="Table Settings" press="onTableBtnSettings"/>
+              <Button id="tableBtnFilter" icon="sap-icon://filter" tooltip="Filter Table" press="onTableBtnFilter"/>
+              <Button id="tableBtnExport" icon="sap-icon://excel-attachment" tooltip="Export Table" press="onTableBtnExport"/>
+              <ToolbarSpacer/>
+            </Toolbar>
+          </headerToolbar>
+          <columns>
+            <Column id="col_S" width="4em">
+              <header>
+                <Text text="S..."/>
+              </header>
+              <template>
+                <core:Icon src="{PurchaseOrderItems>ItemStatusIcon}" tooltip="{PurchaseOrderItems>ItemStatusTooltip}" size="1.5em"/>
+              </template>
+            </Column>
+            <Column id="col_Itm" width="4em">
+              <header>
+                <Text text="Itm"/>
+              </header>
+              <template>
+                <Input id="item_ItmTmpl" value="{PurchaseOrderItems>ItemNumber}" enabled="false"/>
+              </template>
+            </Column>
+            <Column id="col_A" width="4em">
+              <header>
+                <Text text="A"/>
+              </header>
+              <template>
+                <Input id="item_ATmpl" value="{PurchaseOrderItems>FieldA}"/>
+              </template>
+            </Column>
+            <Column id="col_I" width="4em">
+              <header>
+                <Text text="I"/>
+              </header>
+              <template>
+                <Input id="item_ITmpl" value="{PurchaseOrderItems>FieldI}"/>
+              </template>
+            </Column>
+            <Column id="col_Material" width="8em">
+              <header>
+                <Text text="Material"/>
+              </header>
+              <template>
+                <Input id="item_MaterialTmpl" value="{PurchaseOrderItems>MaterialNumber}"/>
+              </template>
+            </Column>
+            <Column id="col_ShortText" width="12em">
+              <header>
+                <Text text="Short Text"/>
+              </header>
+              <template>
+                <Input id="item_ShortTextTmpl" value="{PurchaseOrderItems>ShortText}"/>
+              </template>
+            </Column>
+            <Column id="col_POQuantity" width="8em">
+              <header>
+                <Text text="PO Quantity"/>
+              </header>
+              <template>
+                <Input id="item_POQuantityTmpl" value="{PurchaseOrderItems>POQuantity}" type="Number"/>
+              </template>
+            </Column>
+            <Column id="col_OrderUnit" width="4em">
+              <header>
+                <Text text="O..."/>
+              </header>
+              <template>
+                <Input id="item_OrderUnitTmpl" value="{PurchaseOrderItems>OrderUnit}"/>
+              </template>
+            </Column>
+            <Column id="col_C" width="4em">
+              <header>
+                <Text text="C"/>
+              </header>
+              <template>
+                <Input id="item_CTmpl" value="{PurchaseOrderItems>ConfirmationStatus}"/>
+              </template>
+            </Column>
+            <Column id="col_DeliveryDate" width="8em">
+              <header>
+                <Text text="Deliv. Date"/>
+              </header>
+              <template>
+                <Input id="item_DeliveryDateTmpl" value="{PurchaseOrderItems>DeliveryDate}" type="Date"/>
+              </template>
+            </Column>
+            <Column id="col_NetPrice" width="8em">
+              <header>
+                <Text text="Net Price"/>
+              </header>
+              <template>
+                <Input id="item_NetPriceTmpl" value="{PurchaseOrderItems>NetPrice}" type="Number"/>
+              </template>
+            </Column>
+            <Column id="col_Currency" width="4em">
+              <header>
+                <Text text="Curr..."/>
+              </header>
+              <template>
+                <Input id="item_CurrencyTmpl" value="{PurchaseOrderItems>Currency}" enabled="false"/>
+              </template>
+            </Column>
+            <Column id="col_Per" width="4em">
+              <header>
+                <Text text="Per"/>
+              </header>
+              <template>
+                <Input id="item_PerTmpl" value="{PurchaseOrderItems>PerUnit}" type="Number"/>
+              </template>
+            </Column>
+            <Column id="col_OrderUnit2" width="4em">
+              <header>
+                <Text text="O..."/>
+              </header>
+              <template>
+                <Input id="item_OrderUnit2Tmpl" value="{PurchaseOrderItems>OrderUnit2}" enabled="false"/>
+              </template>
+            </Column>
+            <Column id="col_MaterialGroup" width="8em">
+              <header>
+                <Text text="Matl Group"/>
+              </header>
+              <template>
+                <Input id="item_MaterialGroupTmpl" value="{PurchaseOrderItems>MaterialGroup}"/>
+              </template>
+            </Column>
+            <Column id="col_Plant" width="4em">
+              <header>
+                <Text text="Plnt"/>
+              </header>
+              <template>
+                <Input id="item_PlantTmpl" value="{PurchaseOrderItems>Plant}"/>
+              </template>
+            </Column>
+            <Column id="col_StorageLocation" width="8em">
+              <header>
+                <Text text="Stor. Location"/>
+              </header>
+              <template>
+                <Input id="item_StorageLocationTmpl" value="{PurchaseOrderItems>StorageLocation}"/>
+              </template>
+            </Column>
+            <Column id="col_B" width="4em">
+              <header>
+                <Text text="B"/>
+              </header>
+              <template>
+                <Input id="item_BTmpl" value="{PurchaseOrderItems>BlockedIndicator}"/>
+              </template>
+            </Column>
+          </columns>
+        </Table>
+        
+        <!-- Item Selection and Item TabStrip -->
+        <Panel id="itemSelectionPanel" headerText="Item Selection" class="sapUiResponsiveMargin">
+          <content>
+            <layout:HorizontalLayout>
+              <Label text="Item" design="Bold" class="sapUiTinyMarginEnd"/>
+              <Select id="itemDropdown" width="250px" change="onActionSelectOrderItem">
+                <core:Item key="1" text="[ 1 ] EXTERNAL WORK--- HUB GREASING"/>
+              </Select>
+              <Button id="prevItemButton" icon="sap-icon://slim-left" press="onActionSelectPrevItem" class="sapUiTinyMarginBeginEnd"/>
+              <Button id="nextItemButton" icon="sap-icon://slim-right" press="onActionSelectNextItem"/>
+            </layout:HorizontalLayout>
+          </content>
+        </Panel>
+
+        <IconTabBar id="itemDetailTabStrip" select="onSelectSubTab" expandable="false" expanded="{device>/isNoPhone}">
+          <items>
+            <IconTabFilter id="servicesTab" text="Services" key="SERVICES"/>
+            <IconTabFilter id="limitsTab" text="Limits" key="LIMITS"/>
+            <IconTabFilter id="materialDataTab" text="Material Data" key="MATERIAL_DATA"/>
+            <IconTabFilter id="quantitiesWeightsTab" text="Quantities/Weights" key="QUANTITIES_WEIGHTS"/>
+            <IconTabFilter id="deliveryScheduleTab" text="Delivery Schedule" key="DELIVERY_SCHEDULE"/>
+            <IconTabFilter id="deliveryTab" text="Delivery" key="DELIVERY"/>
+            <IconTabFilter id="invoiceTab" text="Invoice" key="INVOICE"/>
+            <IconTabFilter id="conditionsItemTab" text="Conditions" key="CONDITIONS_ITEM"/>
+            <IconTabFilter id="indiaTab" text="India" key="INDIA">
+              <content>
+                <form:SimpleForm id="indiaDetailsForm" editable="true" layout="ResponsiveGridLayout" title="India Details">
+                  <form:content>
+                    <Label text="Control code"/>
+                    <layout:HorizontalLayout>
+                      <Input id="controlCodeField" value="{SelectedItemDetails>/IndiaData/ControlCode}" width="150px"/>
+                      <Button id="searchControlCodeButton" icon="sap-icon://search" press="onActionSearchControlCode"/>
+                    </layout:HorizontalLayout>
+                  </form:content>
+                </form:SimpleForm>
+              </content>
+            </IconTabFilter>
+            <IconTabFilter id="accountAssignmentTab" text="Account Assignment" key="ACCOUNT_ASSIGNMENT"/>
+            <IconTabFilter id="purchaseOrderHistoryTab" text="Purchase Ord..." key="PURCHASE_ORDER_HISTORY"/>
+          </items>
+        </IconTabBar>
+
+      </layout:VerticalLayout>
     </content>
   </Page>
 </mvc:View>
